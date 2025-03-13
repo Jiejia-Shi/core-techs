@@ -17,9 +17,15 @@ public class UserController {
 
     @PostMapping("/add")
     public void addUser(@RequestBody UserDto userDto) {
+        // verify dto
+        if (userDto == null) {
+            return;
+        }
+
         User user = new User();
         user.setUserName(userDto.getUserName());
         user.setPassword(userDto.getPassword());
+        user.setUserAccount(userDto.getUserAccount());
         userService.addUser(user);
     }
 }

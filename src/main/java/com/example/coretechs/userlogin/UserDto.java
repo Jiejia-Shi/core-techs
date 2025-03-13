@@ -11,5 +11,8 @@ public class UserDto {
     private String userName;
 
     @Schema
+    private String userAccount;
+
+    @Schema
     private String password;
 }

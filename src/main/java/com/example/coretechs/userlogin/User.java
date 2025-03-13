@@ -1,6 +1,7 @@
 package com.example.coretechs.userlogin;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,8 +16,11 @@ public class User implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false)
     private String userName;
+
+    @Column(unique = true, nullable = false)
+    private String userAccount;
 
     @Column(nullable = false)
     private String password;
