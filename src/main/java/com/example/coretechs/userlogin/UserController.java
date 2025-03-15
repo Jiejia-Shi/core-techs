@@ -35,6 +35,9 @@ public class UserController {
 
     @GetMapping("/current")
     public User getCurrentUser(HttpServletRequest request) {
+        if (request == null) {
+            return null;
+        }
         Object userObj = request.getSession().getAttribute(USER_LOGIN_STATE);
         User currentUser = (User) userObj;
         if (currentUser == null || currentUser.getId() == null) {
@@ -42,6 +45,14 @@ public class UserController {
         }
         // update user info, return the updated user info
         return userService.getUserById(currentUser.getId());
+    }
+
+    @PostMapping("/logout")
+    public Integer userLogout(HttpServletRequest request) {
+        if (request == null) {
+            return null;
+        }
+        return userService.userLogout(request);
     }
 
     @PostMapping("/login")
@@ -58,4 +69,6 @@ public class UserController {
         }
         return userService.userLogin(userAccount, password, httpServletRequest);
     }
+
+
 }

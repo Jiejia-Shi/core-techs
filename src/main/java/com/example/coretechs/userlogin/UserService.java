@@ -94,6 +94,11 @@ public class UserService {
 
     }
 
+    public Integer userLogout(HttpServletRequest request) {
+        request.getSession().removeAttribute(USER_LOGIN_STATE);
+        return 1;
+    }
+
     public User getUserById(long id) {
         User user = userRepository.findById(id).orElse(null);
         return convertToSafeUser(user);
