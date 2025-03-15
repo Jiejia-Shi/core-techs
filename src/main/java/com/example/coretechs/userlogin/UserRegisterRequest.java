@@ -3,9 +3,11 @@ package com.example.coretechs.userlogin;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
+import java.io.Serializable;
+
 @Data
 @Schema
-public class UserDto {
+public class UserRegisterRequest implements Serializable {
 
     @Schema
     private String userName;

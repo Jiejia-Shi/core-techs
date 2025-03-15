@@ -1,12 +1,13 @@
 package com.example.coretechs.userlogin;
 
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import static com.example.coretechs.userlogin.UserConstant.USER_LOGIN_STATE;
 
 @RestController
 @RequestMapping("/user")
@@ -16,16 +17,45 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("/add")
-    public void addUser(@RequestBody UserDto userDto) {
-        // verify dto
-        if (userDto == null) {
-            return;
+    public Long addUser(@RequestBody UserRegisterRequest userRegisterRequest) {
+        // verify request body
+        if (userRegisterRequest == null) {
+            return null;
         }
 
         User user = new User();
-        user.setUserName(userDto.getUserName());
-        user.setPassword(userDto.getPassword());
-        user.setUserAccount(userDto.getUserAccount());
-        userService.addUser(user);
+        user.setUserName(userRegisterRequest.getUserName());
+        user.setPassword(userRegisterRequest.getPassword());
+        user.setUserAccount(userRegisterRequest.getUserAccount());
+        if (StringUtils.isAnyBlank(user.getUserName(), user.getUserAccount(), user.getPassword())) {
+            return null;
+        }
+        return userService.addUser(user);
+    }
+
+    @GetMapping("/current")
+    public User getCurrentUser(HttpServletRequest request) {
+        Object userObj = request.getSession().getAttribute(USER_LOGIN_STATE);
+        User currentUser = (User) userObj;
+        if (currentUser == null || currentUser.getId() == null) {
+            return null;
+        }
+        // update user info, return the updated user info
+        return userService.getUserById(currentUser.getId());
+    }
+
+    @PostMapping("/login")
+    public User userLogin(UserLoginRequest userLoginRequest, HttpServletRequest httpServletRequest) {
+        // verify
+        if (userLoginRequest == null) {
+            return null;
+        }
+
+        String userAccount = userLoginRequest.getUserAccount();
+        String password = userLoginRequest.getPassword();
+        if (StringUtils.isAnyBlank(userAccount, password)) {
+            return null;
+        }
+        return userService.userLogin(userAccount, password, httpServletRequest);
     }
 }
