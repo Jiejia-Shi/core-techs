@@ -1,6 +1,8 @@
 package com.example.coretechs.userlogin;
 
 
+import com.example.coretechs.common.BaseResponse;
+import com.example.coretechs.common.ResultUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -17,7 +19,7 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("/add")
-    public Long addUser(@RequestBody UserRegisterRequest userRegisterRequest) {
+    public BaseResponse<Long> addUser(@RequestBody UserRegisterRequest userRegisterRequest) {
         // verify request body
         if (userRegisterRequest == null) {
             return null;
@@ -30,11 +32,12 @@ public class UserController {
         if (StringUtils.isAnyBlank(user.getUserName(), user.getUserAccount(), user.getPassword())) {
             return null;
         }
-        return userService.addUser(user);
+        Long result = userService.addUser(user);
+        return ResultUtils.success(result);
     }
 
     @GetMapping("/current")
-    public User getCurrentUser(HttpServletRequest request) {
+    public BaseResponse<User> getCurrentUser(HttpServletRequest request) {
         if (request == null) {
             return null;
         }
@@ -44,19 +47,21 @@ public class UserController {
             return null;
         }
         // update user info, return the updated user info
-        return userService.getUserById(currentUser.getId());
+        User result = userService.getUserById(currentUser.getId());
+        return ResultUtils.success(result);
     }
 
     @PostMapping("/logout")
-    public Integer userLogout(HttpServletRequest request) {
+    public BaseResponse<Integer> userLogout(HttpServletRequest request) {
         if (request == null) {
             return null;
         }
-        return userService.userLogout(request);
+        Integer result = userService.userLogout(request);
+        return ResultUtils.success(result);
     }
 
     @PostMapping("/login")
-    public User userLogin(UserLoginRequest userLoginRequest, HttpServletRequest httpServletRequest) {
+    public BaseResponse<User> userLogin(UserLoginRequest userLoginRequest, HttpServletRequest httpServletRequest) {
         // verify
         if (userLoginRequest == null) {
             return null;
@@ -67,7 +72,8 @@ public class UserController {
         if (StringUtils.isAnyBlank(userAccount, password)) {
             return null;
         }
-        return userService.userLogin(userAccount, password, httpServletRequest);
+        User result = userService.userLogin(userAccount, password, httpServletRequest);
+        return ResultUtils.success(result);
     }
 
 
