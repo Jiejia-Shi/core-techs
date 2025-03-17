@@ -1,5 +1,7 @@
 package com.example.coretechs.userlogin;
 
+import com.example.coretechs.common.ErrorCode;
+import com.example.coretechs.exception.BusinessException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -25,20 +27,20 @@ public class UserService {
     public long addUser(User user) {
         // verify data
         if (StringUtils.isAnyBlank(user.getUserName(), user.getUserAccount(), user.getPassword())) {
-            return -1;
+            throw new BusinessException(ErrorCode.PARAMS_NULL, "user name, account and password are required");
         }
         // user account length should >= 4
         if (user.getUserAccount().length() < 4) {
-            return -1;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "user account length less than 4");
         }
         // password length should >= 8
         if (user.getPassword().length() < 8) {
-            return -1;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "password length less than 8");
         }
         // user account should be unique
         int sameAccountNum = userRepository.countByUserAccount(user.getUserAccount());
         if (sameAccountNum > 0) {
-            return -1;
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "user account already exists");
         }
 
         // encrypt
@@ -49,7 +51,7 @@ public class UserService {
         userRepository.save(user);
         Long userId = user.getId();
         if (userId == null) {
-            return -1;
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "saving user failed: can't get id");
         } else {
             return userId;
         }
@@ -58,15 +60,15 @@ public class UserService {
     public User userLogin(String userAccount, String password, HttpServletRequest request) {
         // verify userAccount and password
         if(StringUtils.isAnyBlank(userAccount, password)) {
-            return null;
+            throw new BusinessException(ErrorCode.PARAMS_NULL, "user account, password are required");
         }
         // user account length should >= 4
         if (userAccount.length() < 4) {
-            return null;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "user account length less than 4");
         }
         // password length should >= 8
         if (password.length() < 8) {
-            return null;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "password length less than 8");
         }
 
         // encrypt
@@ -89,7 +91,7 @@ public class UserService {
             request.getSession().setAttribute(USER_LOGIN_STATE, safeUser);
             return safeUser;
         } else {
-            return null;
+            throw new BusinessException(ErrorCode.NO_AUTH, "account and password do not match");
         }
 
     }
@@ -106,7 +108,7 @@ public class UserService {
 
     public User convertToSafeUser(User user) {
         if (user == null) {
-            return null;
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "convert failed: user is null");
         }
         User safeUser = new User();
         safeUser.setUserAccount(user.getUserAccount());
